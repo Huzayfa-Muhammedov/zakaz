@@ -2,6 +2,214 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zakaz berish</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #e9ecef;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .product-group {
+      border: 1px dashed #aaa;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 6px;
+      background-color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      input, textarea {
+        font-size: 15px;
+      }
+
+      button {
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 20px;
+      }
+
+      input, textarea {
+        font-size: 14px;
+        padding: 8px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Zakaz berish</h2>
+    <form id="orderForm">
+      <div id="productsContainer">
+        <div class="product-group">
+          <label>Tovar nomi:</label>
+          <input type="text" name="product[]" placeholder="Masalan: Olma" required>
+
+          <label>Miqdori:</label>
+          <input type="text" name="quantity[]" placeholder="Masalan: 1 kg" required>
+        </div>
+      </div>
+
+      <button type="button" onclick="addProduct()">➕ Tovar qo‘shish</button>
+
+      <label for="phone">Telefon raqami:</label>
+      <input type="tel" id="phone" placeholder="+998901234567" required>
+
+      <label for="location">Manzil:</label>
+      <textarea id="location" rows="3" placeholder="Yashash manzilingizni kiriting" required></textarea>
+
+      <button type="submit">📤 Zakazni yuborish</button>
+    </form>
+  </div>
+
+  <script>
+    const token = "7699754176:AAGgo-SIGYyFTeh-afAL1ZXVVYSAGbCkqQk";
+    const chat_id = "6029723281";
+
+    function addProduct() {
+      const container = document.getElementById("productsContainer");
+      const div = document.createElement("div");
+      div.className = "product-group";
+      div.innerHTML = `
+        <label>Tovar nomi:</label>
+        <input type="text" name="product[]" placeholder="Masalan: Olma" required>
+
+        <label>Miqdori:</label>
+        <input type="text" name="quantity[]" placeholder="Masalan: 1 kg" required>
+      `;
+      container.appendChild(div);
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const products = document.getElementsByName("product[]");
+      const quantities = document.getElementsByName("quantity[]");
+      const phone = document.getElementById("phone").value.trim();
+      const location = document.getElementById("location").value.trim();
+
+      let message = "📦 Yangi zakaz:\n";
+
+      for (let i = 0; i < products.length; i++) {
+        const p = products[i].value.trim();
+        const q = quantities[i].value.trim();
+        message += `\n🛒 Tovar: ${p}\n📦 Miqdori: ${q}`;
+      }
+
+      message += `\n\n📱 Telefon: ${phone}\n 🗺 Manzil: ${location}`;
+
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chat_id: chat_id,
+          text: message
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          alert("✅ Zakaz muvaffaqiyatli yuborildi!");
+          document.getElementById("orderForm").reset();
+          document.getElementById("productsContainer").innerHTML = `
+            <div class="product-group">
+              <label>Tovar nomi:</label>
+              <input type="text" name="product[]" placeholder="Masalan: Olma" required>
+              <label>Miqdori:</label>
+              <input type="text" name="quantity[]" placeholder="Masalan: 1 kg" required>
+            </div>`;
+        } else {
+          alert("❌ Xatolik: Zakaz yuborilmadi.");
+        }
+      })
+      .catch(error => {
+        console.error("Xatolik:", error);
+        alert("❌ Internet bilan muammo bor yoki boshqa xatolik.");
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
   <title>Zakaz berish</title>
   <style>
     body {
@@ -147,7 +355,7 @@
     });
   </script>
 </body>
-</html>
+</html> -->
 
 
 <!-- <!DOCTYPE html>
