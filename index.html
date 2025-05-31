@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <title>Zakaz berish</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .product-group {
+      border: 1px dashed #aaa;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Zakaz berish</h2>
+  <form id="orderForm">
+    <div id="productsContainer">
+      <div class="product-group">
+        <label>Tovar nomi:</label>
+        <input type="text" name="product[]" placeholder="Masalan: Olma" required>
+
+        <label>Miqdori:</label>
+        <input type="text" name="quantity[]" placeholder="Masalan: 1 kg" required>
+      </div>
+    </div>
+
+    <button type="button" onclick="addProduct()">➕ Tovar qo‘shish</button>
+
+    <label for="phone">Telefon raqami:</label>
+    <input type="tel" id="phone" placeholder="+998901234567" required>
+
+    <label for="location">Manzil:</label>
+    <textarea id="location" rows="3" placeholder="Yashash manzilingizni kiriting" required></textarea>
+
+    <button type="submit">📤 Zakazni yuborish</button>
+  </form>
+
+  <script>
+    const token = "7699754176:AAGgo-SIGYyFTeh-afAL1ZXVVYSAGbCkqQk";
+    const chat_id = "6029723281";
+
+    function addProduct() {
+      const container = document.getElementById("productsContainer");
+      const div = document.createElement("div");
+      div.className = "product-group";
+      div.innerHTML = `
+        <label>Tovar nomi:</label>
+        <input type="text" name="product[]" placeholder="Masalan: Olma" required>
+
+        <label>Miqdori:</label>
+        <input type="text" name="quantity[]" placeholder="Masalan: 1 kg" required>
+      `;
+      container.appendChild(div);
+    }
+
+    document.getElementById("orderForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const products = document.getElementsByName("product[]");
+      const quantities = document.getElementsByName("quantity[]");
+      const phone = document.getElementById("phone").value.trim();
+      const location = document.getElementById("location").value.trim();
+
+      let message = "📦 Yangi zakaz:\n";
+
+      for (let i = 0; i < products.length; i++) {
+        const p = products[i].value.trim();
+        const q = quantities[i].value.trim();
+        message += `\n🛒 Tovar: ${p}\n📦 Miqdori: ${q}`;
+      }
+
+      message += `\n\n📱 Telefon: ${phone}\n📍 Manzil: ${location}`;
+
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          chat_id: chat_id,
+          text: message
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          alert("✅ Zakaz muvaffaqiyatli yuborildi!");
+          document.getElementById("orderForm").reset();
+          document.getElementById("productsContainer").innerHTML = `
+            <div class="product-group">
+              <label>Tovar nomi:</label>
+              <input type="text" name="product[]" placeholder="Masalan: Olma" required>
+              <label>Miqdori:</label>
+              <input type="text" name="quantity[]" placeholder="Masalan: 1 kg" required>
+            </div>`;
+        } else {
+          alert("❌ Xatolik: Zakaz yuborilmadi.");
+        }
+      })
+      .catch(error => {
+        console.error("Xatolik:", error);
+        alert("❌ Internet bilan muammo bor yoki boshqa xatolik.");
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <title>Zakaz berish</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 14px;
+      resize: vertical;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  
+  <h2>Zakaz berish</h2>
+  <form id="orderForm">
+    <label for="product">Tovar nomi:</label>
+    <input type="text" id="product" name="product" placeholder="Masalan: Olma" required />
+
+    <label for="quantity">Miqdori:</label>
+    <input type="text" id="quantity" name="quantity" placeholder="Masalan: 1 kg" required />
+
+    <label for="phone">Telefon raqami:</label>
+    <input type="tel" id="phone" name="phone" placeholder="+998901234567" required />
+
+    <label for="location">Manzil:</label>
+    <textarea id="location" name="location" rows="3" placeholder="Yashash manzilingizni kiriting" required></textarea>
+
+    <button type="submit">Zakazni yuborish</button>
+  </form>
+
+  <script>
+    // Bu yerga o'z token va chat_id ni qo'yasiz:
+    const token = "7699754176:AAGgo-SIGYyFTeh-afAL1ZXVVYSAGbCkqQk";
+    const chat_id = "6029723281";
+
+    const form = document.getElementById("orderForm");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const product = document.getElementById("product").value.trim();
+      const quantity = document.getElementById("quantity").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const location = document.getElementById("location").value.trim();
+
+      const message = `📦 Yangi zakaz!\n\n 🛒 Tovar: ${product}\n 📦 Miqdori: ${quantity}\n 📱 Telefon: ${phone}\n 🗺 Manzil: ${location}`;
+
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chat_id,
+          text: message
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.ok) {
+          alert("✅ Zakazingiz muvaffaqiyatli yuborildi!");
+          form.reset();
+        } else {
+          alert("❌ Xatolik yuz berdi, iltimos qaytadan urinib ko‘ring.");
+        }
+      })
+      .catch(error => {
+        console.error('Xatolik:', error);
+        alert("❌ Xatolik yuz berdi, iltimos qaytadan urinib ko‘ring.");
+      });
+    });
+  </script>
+</body>
+</html> -->
